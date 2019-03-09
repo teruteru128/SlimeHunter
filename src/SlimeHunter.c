@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
                   }
                 }
                 if(slimeChunkCount >= minSlimeChunks){
-                  printf("'%"PRId64",(%"PRId64",%"PRId64")(%"PRId64",%"PRId64"),(%"PRId32",%"PRId32")\n", currentSeed, chunkX, chunkZ, chunkX * 16, chunkZ * 16, slimeChunkCount, chunkCount);
+                  printf("'%"PRId64",%"PRId64",%"PRId64",'%"PRId32"/%"PRId32"\n", currentSeed, (chunkX + x) * 16, (chunkZ + z) * 16, slimeChunkCount, chunkCount);
                 }
               }
             }
