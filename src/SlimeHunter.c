@@ -6,14 +6,18 @@
 #include "random.h"
 #include "mcSlimeChunkOracle.h"
 
+/*
+  TODO renovate to search 5x5
+  20/25 > 16/16 > 21/25
+*/
 int main(int argc, char* argv[]){
   SlimeChunkSeed seed;
   Random random;
   setSeed(&random, 0);
-  printf("%u\n", next(&random, 32));
-  printf("%u\n", nextInt(&random));
-  printf("%u\n", nextIntWithRange(&random, 10));
-  printf("%"PRId64"\n", nextLong(&random));
+  fprintf(stderr, "%u\n", next(&random, 32));
+  fprintf(stderr, "%u\n", nextInt(&random));
+  fprintf(stderr, "%u\n", nextIntWithRange(&random, 10));
+  fprintf(stderr, "%"PRId64"\n", nextLong(&random));
 
   FILE* fp;
   char* rpath = "/dev/urandom";
@@ -25,13 +29,13 @@ int main(int argc, char* argv[]){
   int64_t currentSeed = 0;
   (void)fread(&rndSeed, sizeof(rndSeed), 1, fp);
 
-  printf("Initial Seed : %"PRId64"\n", rndSeed);
+  fprintf(stderr, "Initial Seed : %"PRId64"\n", rndSeed);
 
   int64_t chunkX, xMin = -313, xMax = 312, x;
   int64_t chunkZ, zMin = -313, zMax = 312, z;
   int64_t countRangeX = 4;
   int64_t countRangeZ = 4;
-  int64_t minSlimeChunks = 13;
+  int64_t minSlimeChunks = 9;
   uint64_t i = 0;
   int32_t slimeChunkCount = 0;
   int32_t chunkCount = 0;
@@ -47,6 +51,8 @@ int main(int argc, char* argv[]){
       for(chunkX = xMin; chunkX < xMax; chunkX += 2){
         if(isSlimeChunkXZ(&seed, chunkX + 2, chunkZ) && isSlimeChunkXZ(&seed, chunkX + 2, chunkZ + 2)){
           if(isSlimeChunkXZ(&seed, chunkX, chunkZ) && isSlimeChunkXZ(&seed, chunkX, chunkZ + 2)){
+            /*
+            printf("%"PRId64",%"PRId64",%"PRId64"\n", currentSeed, chunkX, chunkZ);
             for(z = -1; z < 1; z ++){
               for(x = -1; x < 1; x++){
                 slimeChunkCount = 4;
@@ -62,10 +68,11 @@ int main(int argc, char* argv[]){
                   }
                 }
                 if(slimeChunkCount >= minSlimeChunks){
-                  printf("'%"PRId64",%"PRId64",%"PRId64",'%"PRId32"/%"PRId32"\n", currentSeed, (chunkX + x) * 16, (chunkZ + z) * 16, slimeChunkCount, chunkCount);
+                  fprintf(stderr, "'%"PRId64",%"PRId64",%"PRId64",'%"PRId32"/%"PRId32"\n", currentSeed, (chunkX + x) * 16, (chunkZ + z) * 16, slimeChunkCount, chunkCount);
                 }
               }
             }
+            */
           }
         } else {
           chunkX += 2;
@@ -75,6 +82,6 @@ int main(int argc, char* argv[]){
   }
   clock_t finish = clock();
   double seconds = ((double)(finish - start)/ CLOCKS_PER_SEC);
-  printf("%"PRId64"seeds, %.2lfseeds/s, %.2lfs\n", searchSeeds, searchSeeds/seconds, seconds);
+  fprintf(stderr, "%"PRId64"seeds, %.2lfseeds/s, %.2lfs\n", searchSeeds, searchSeeds/seconds, seconds);
 }
 

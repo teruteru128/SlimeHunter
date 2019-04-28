@@ -13,7 +13,8 @@ int64_t getMCSeed(SlimeChunkSeed*, int32_t , int32_t);
 void setMCSeed(SlimeChunkSeed*, int64_t);
 
 bool isSlimeChunkXZ(SlimeChunkSeed *, int64_t, int64_t);
-bool isSlimeChunk(Random *);
+bool isSlimeChunkXZ2(SlimeChunkSeed *, int64_t, int64_t);
+//bool isSlimeChunk(Random *);
 
 #endif
 
