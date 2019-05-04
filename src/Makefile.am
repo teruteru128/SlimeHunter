@@ -1,6 +1,5 @@
 
-bin_PROGRAMS=SlimeHunter SlimeHunterAfter
+bin_PROGRAMS=SlimeHunter
 
-SlimeHunter_SOURCES=SlimeHunter.c internal_random.h random.h random.c mcSlimeChunkOracle.c
-SlimeHunterAfter_SOURCES=SlimeHunterAfter.c internal_random.h random.h random.c mcSlimeChunkOracle.c
+SlimeHunter_SOURCES=internal_random.h random.h random.c SlimeHunter.c mcSlimeChunkOracle.c
 

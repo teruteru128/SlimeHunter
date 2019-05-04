@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdint.h>
 #include "mcSlimeChunkOracle.h"
 
 void setMCSeed(SlimeChunkSeed* t, int64_t seed){
@@ -16,9 +17,5 @@ static bool isSlimeChunk(Random* rnd){
 
 bool isSlimeChunkXZ(SlimeChunkSeed* seed, int64_t chunkX, int64_t chunkZ){
   return isSlimeChunk(setSeed(&seed->rnd, getMCSeed(seed, (int32_t)chunkX, (int32_t)chunkZ)));
-}
-
-bool isSlimeChunkXZ2(SlimeChunkSeed* seed, int64_t chunkX, int64_t chunkZ){
-  return nextIntWithRange(setSeed(&seed->rnd, getMCSeed(seed, (int32_t)chunkX, (int32_t)chunkZ)), 10) ==0 && nextIntWithRange(setSeed(&seed->rnd, getMCSeed(seed, (int32_t)chunkX, (int32_t)chunkZ + 2)), 10) == 0;
 }
 

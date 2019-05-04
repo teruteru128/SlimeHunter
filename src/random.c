@@ -1,6 +1,7 @@
 
-#include "internal_random.h"
+#include <stdint.h>
 #include "random.h"
+#include "internal_random.h"
 
 static int64_t initialScramble(uint64_t seed){
     return (seed ^ MULTIPLIER) & MASK;

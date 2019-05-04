@@ -9,6 +9,10 @@
 /*
   TODO renovate to search 5x5
   20/25 > 16/16 > 21/25
+
+  メモ化
+  1行ごとに移動最大
+
 */
 int main(int argc, char* argv[]){
   SlimeChunkSeed seed;
@@ -27,7 +31,7 @@ int main(int argc, char* argv[]){
   }
   int64_t rndSeed = 0;
   int64_t currentSeed = 0;
-  (void)fread(&rndSeed, sizeof(rndSeed), 1, fp);
+  size_t len = fread(&rndSeed, sizeof(rndSeed), 1, fp);
 
   fprintf(stderr, "Initial Seed : %"PRId64"\n", rndSeed);
 
@@ -43,12 +47,22 @@ int main(int argc, char* argv[]){
   long exZ = 0;
   clock_t start = clock();
   int64_t searchSeeds = 10000ULL;
+
+  char cache[4][625];
   for(i = 0; i < searchSeeds; i++){
     currentSeed = rndSeed++;
     setMCSeed(&seed, currentSeed);
 
+    // 最初の4行のキャッシュを作成
+    // 1行ずつcountRangeごとの移動最大を取る
+    // 最大がcountRangeと等しくなかったら行ごとスキップ
+
+    // 行
     for(chunkZ = zMin; chunkZ < zMax; chunkZ += 2){
+
+      // 列
       for(chunkX = xMin; chunkX < xMax; chunkX += 2){
+        
         if(isSlimeChunkXZ(&seed, chunkX + 2, chunkZ) && isSlimeChunkXZ(&seed, chunkX + 2, chunkZ + 2)){
           if(isSlimeChunkXZ(&seed, chunkX, chunkZ) && isSlimeChunkXZ(&seed, chunkX, chunkZ + 2)){
             /*
