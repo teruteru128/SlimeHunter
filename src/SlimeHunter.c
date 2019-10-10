@@ -9,11 +9,6 @@
 int main(int argc, char* argv[]){
   SlimeChunkSeed seed;
   Random random;
-  setSeed(&random, 0);
-  printf("%u\n", next(&random, 32));
-  printf("%u\n", nextInt(&random));
-  printf("%u\n", nextIntWithRange(&random, 10));
-  printf("%"PRId64"\n", nextLong(&random));
 
   FILE* fp;
   char* rpath = "/dev/urandom";
@@ -76,5 +71,6 @@ int main(int argc, char* argv[]){
   clock_t finish = clock();
   double seconds = ((double)(finish - start)/ CLOCKS_PER_SEC);
   printf("%"PRId64"seeds, %.2lfseeds/s, %.2lfs\n", searchSeeds, searchSeeds/seconds, seconds);
+  return EXIT_SUCCESS;
 }
 
