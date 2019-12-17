@@ -6,37 +6,22 @@
 #include "random.h"
 #include "mcSlimeChunkOracle.h"
 
-int main(int argc, char* argv[]){
-  SlimeChunkSeed seed;
-  Random random;
-
+int64_t readSeed(void){
   FILE* fp;
   char* rpath = "/dev/urandom";
   fp = fopen(rpath,"rb");
   if(fp == NULL){
     return EXIT_FAILURE;
   }
-  int64_t rndSeed = 0;
-  int64_t currentSeed = 0;
-  (void)fread(&rndSeed, sizeof(rndSeed), 1, fp);
+  int64_t val = 0;
+  size_t len = fread(&val, sizeof(val), 1, fp);
+  return val;
+}
 
-  printf("Initial Seed : %"PRId64"\n", rndSeed);
-
-  int64_t chunkX, xMin = -313, xMax = 312, x;
-  int64_t chunkZ, zMin = -313, zMax = 312, z;
-  int64_t countRangeX = 4;
-  int64_t countRangeZ = 4;
-  int64_t minSlimeChunks = 13;
-  uint64_t i = 0;
-  int32_t slimeChunkCount = 0;
-  int32_t chunkCount = 0;
-  long exX = 0;
-  long exZ = 0;
-  clock_t start = clock();
-  int64_t searchSeeds = 10000ULL;
-  for(i = 0; i < searchSeeds; i++){
-    currentSeed = rndSeed++;
-    setMCSeed(&seed, currentSeed);
+/*
+   Minecraftのスライムチャンクのシード値探索ツール
+   TODO 5x5向けに改修
+   20/25 > 16/16 > 21/25
 
     for(chunkZ = zMin; chunkZ < zMax; chunkZ += 2){
       for(chunkX = xMin; chunkX < xMax; chunkX += 2){
@@ -72,5 +57,10 @@ int main(int argc, char* argv[]){
   double seconds = ((double)(finish - start)/ CLOCKS_PER_SEC);
   printf("%"PRId64"seeds, %.2lfseeds/s, %.2lfs\n", searchSeeds, searchSeeds/seconds, seconds);
   return EXIT_SUCCESS;
+   メモ化
+   5行ごとにウィンドウサイズ5チャンクで移動しながらチャンク数を調べる
+   5チャンク連続でスライムチャンクな場所を見つけたら上下4チャンク、近い側から数える
+*/
+int main(int argc, char* argv[]){
 }
 

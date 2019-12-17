@@ -2,8 +2,6 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
-#include <stdint.h>
-
 typedef struct random_t{
   int64_t seed;
 } Random;
