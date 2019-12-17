@@ -1,19 +1,21 @@
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <time.h>
 #include "random.h"
 #include "mcSlimeChunkOracle.h"
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
-int64_t readSeed(void){
-  FILE* fp;
-  char* rpath = "/dev/urandom";
-  fp = fopen(rpath,"rb");
-  if(fp == NULL){
+int64_t readSeed(void)
+{
+  FILE *fp;
+  char *rpath = "/dev/urandom";
+  fp = fopen(rpath, "rb");
+  if (fp == NULL)
+  {
     return EXIT_FAILURE;
   }
   int64_t val = 0;
@@ -70,36 +72,95 @@ void init_db_file(void);
 #define X_MAX (312)
 #define Z_MIN (-312)
 #define Z_MAX (312)
-int main(int argc, char* argv[]){
-  const int64_t seed = 1613738097659009556L;
-  Random rnd;
-  int32_t x=-3136/16;
-  int32_t z=-2400/16;
-  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+0), isSlimeChunk(&rnd, seed, x+1,z+0), isSlimeChunk(&rnd, seed, x+2,z+0), isSlimeChunk(&rnd, seed, x+3,z+0));
-  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+1), isSlimeChunk(&rnd, seed, x+1,z+1), isSlimeChunk(&rnd, seed, x+2,z+1), isSlimeChunk(&rnd, seed, x+3,z+1));
-  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+2), isSlimeChunk(&rnd, seed, x+1,z+2), isSlimeChunk(&rnd, seed, x+2,z+2), isSlimeChunk(&rnd, seed, x+3,z+2));
-  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+3), isSlimeChunk(&rnd, seed, x+1,z+3), isSlimeChunk(&rnd, seed, x+2,z+3), isSlimeChunk(&rnd, seed, x+3,z+3));
-  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+4), isSlimeChunk(&rnd, seed, x+1,z+4), isSlimeChunk(&rnd, seed, x+2,z+4), isSlimeChunk(&rnd, seed, x+3,z+4));
 
-  x = X_MIN;
-  uint64_t a = 0;
-  const clock_t start = clock();
-  while(x < X_MAX){
-    z = Z_MIN;
-    while(z < Z_MAX){
-      a = a<<1|isSlimeChunk(&rnd, seed, x, z);
-      if((a&0x0f) == 0x0f){
-        fputs("アッー！", stdout);
-      }else{
-        fputs("", stdout);
-      }
-      z++;
-    }
-    x++;
+int main(int argc, char *argv[])
+{
+  int64_t seed = 1613738097659009556L;
+  Random rnd;
+  int32_t x = -3136 / 16;
+  int32_t z = -2400 / 16;
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x + 0, z + 0), isSlimeChunk(&rnd, seed, x + 1, z + 0), isSlimeChunk(&rnd, seed, x + 2, z + 0), isSlimeChunk(&rnd, seed, x + 3, z + 0));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x + 0, z + 1), isSlimeChunk(&rnd, seed, x + 1, z + 1), isSlimeChunk(&rnd, seed, x + 2, z + 1), isSlimeChunk(&rnd, seed, x + 3, z + 1));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x + 0, z + 2), isSlimeChunk(&rnd, seed, x + 1, z + 2), isSlimeChunk(&rnd, seed, x + 2, z + 2), isSlimeChunk(&rnd, seed, x + 3, z + 2));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x + 0, z + 3), isSlimeChunk(&rnd, seed, x + 1, z + 3), isSlimeChunk(&rnd, seed, x + 2, z + 3), isSlimeChunk(&rnd, seed, x + 3, z + 3));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x + 0, z + 4), isSlimeChunk(&rnd, seed, x + 1, z + 4), isSlimeChunk(&rnd, seed, x + 2, z + 4), isSlimeChunk(&rnd, seed, x + 3, z + 4));
+
+  FILE *f;
+  f = fopen("/dev/urandom", "rb");
+  if (f == NULL)
+  {
+    return EXIT_FAILURE;
   }
-  const clock_t end = clock();
+  size_t c = fread(&seed, sizeof(int64_t), 1, f);
+  printf("%ld\n", seed);
+  fclose(f);
+  uint64_t a = 0;
+  struct timespec start;
+  clock_gettime(CLOCK_REALTIME, &start);
+  const int64_t seed_max = seed + 2000;
+  for (; seed < seed_max; seed++)
+  {
+    for (z = Z_MIN + 4; z < Z_MAX; z += 5)
+    {
+      for (x = X_MIN; x < X_MAX; x++)
+      {
+        // 北西または南西角
+        if (isSlimeChunk(&rnd, seed, x, z))
+        {
+          // 北または南5マス
+          int32_t x_ex = 4;
+          for (; isSlimeChunk(&rnd, seed, x + x_ex, z) && x_ex > 0; x_ex--)
+          {
+          }
+          if (x_ex != 0)
+          {
+            x += x_ex;
+            fputs("", stdout);
+            continue;
+          }
+          else
+          {
+            int32_t z_ex = 4;
+            // 西4マス
+            for (; z_ex > 0; z_ex--)
+            {
+              x_ex = 4;
+              for (; isSlimeChunk(&rnd, seed, x + x_ex, z + z_ex) && x_ex > 0; x_ex--)
+              {
+              }
+            }
+            if (z_ex != 0 || x_ex != 0)
+            {
+              fputs("", stdout);
+            }
+            else
+            {
+              fprintf(stdout, "%ld, %d, %d\n", seed, x * 16, z * 16);
+            }
+            z_ex = -4;
+            for (; isSlimeChunk(&rnd, seed, x, z + z_ex) && z_ex < 0; z_ex++)
+            {
+            }
+            if (z_ex != 0)
+            {
+              fputs("", stdout);
+            }
+            else
+            {
+              fprintf(stdout, "%ld, %d, %d\n", seed, x * 16, z * 16);
+            }
+          }
+        }
+      }
+    }
+  }
+  struct timespec end;
+  clock_gettime(CLOCK_REALTIME, &end);
   fputs("\n", stdout);
-  printf("%.8f秒かかりました\n",((double)(end-start)/CLOCKS_PER_SEC));
-  printf("1秒あたり%.8f回\n",1/((double)(end-start)/CLOCKS_PER_SEC));
+  time_t sec = end.tv_sec - start.tv_sec;
+  long nsec = end.tv_nsec - start.tv_nsec;
+  double passed = sec * 1000000000L + nsec;
+  printf("%.8f秒かかりました\n", passed / 1000000000.);
+  printf("1秒あたり%.8f回\n", 1000000000. / passed);
   return EXIT_SUCCESS;
 }
