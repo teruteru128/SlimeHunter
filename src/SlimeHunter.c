@@ -5,6 +5,9 @@
 #include <time.h>
 #include "random.h"
 #include "mcSlimeChunkOracle.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 int64_t readSeed(void){
   FILE* fp;
@@ -27,8 +30,8 @@ void init_db_file(void);
 
     for(chunkZ = zMin; chunkZ < zMax; chunkZ += 2){
       for(chunkX = xMin; chunkX < xMax; chunkX += 2){
-        if(isSlimeChunkXZ(&seed, chunkX + 2, chunkZ) && isSlimeChunkXZ(&seed, chunkX + 2, chunkZ + 2)){
-          if(isSlimeChunkXZ(&seed, chunkX, chunkZ) && isSlimeChunkXZ(&seed, chunkX, chunkZ + 2)){
+        if(isSlimeChunk(&seed, chunkX + 2, chunkZ) && isSlimeChunk(&seed, chunkX + 2, chunkZ + 2)){
+          if(isSlimeChunk(&seed, chunkX, chunkZ) && isSlimeChunk(&seed, chunkX, chunkZ + 2)){
             for(z = -1; z < 1; z ++){
               for(x = -1; x < 1; x++){
                 slimeChunkCount = 4;
@@ -37,7 +40,7 @@ void init_db_file(void);
                   for(exZ = 0; exZ < countRangeZ; exZ++) {
                     if((z + exZ) % 2 != 0 || (x + exX) % 2 != 0){
                       chunkCount++;
-                      if(isSlimeChunkXZ(&seed, chunkX + exX + x, chunkZ + exZ + z)){
+                      if(isSlimeChunk(&seed, chunkX + exX + x, chunkZ + exZ + z)){
                         slimeChunkCount++;
                       }
                     }
@@ -63,81 +66,40 @@ void init_db_file(void);
    5行ごとにウィンドウサイズ5チャンクで移動しながらチャンク数を調べる
    5チャンク連続でスライムチャンクな場所を見つけたら上下4チャンク、近い側から数える
 */
+#define X_MIN (-312)
+#define X_MAX (312)
+#define Z_MIN (-312)
+#define Z_MAX (312)
 int main(int argc, char* argv[]){
-  // DB file exists check
-  // get seed range list
-  // select seed range
-  //init_seed_db();
-  //seed_list list = NULL;
-  //get_seed_list(con, &list);
-  int64_t seed_start = 1613738097659009550L;
-  int64_t seed_end = 1613738097659009560L;
+  const int64_t seed = 1613738097659009556L;
+  Random rnd;
+  int32_t x=-3136/16;
+  int32_t z=-2400/16;
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+0), isSlimeChunk(&rnd, seed, x+1,z+0), isSlimeChunk(&rnd, seed, x+2,z+0), isSlimeChunk(&rnd, seed, x+3,z+0));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+1), isSlimeChunk(&rnd, seed, x+1,z+1), isSlimeChunk(&rnd, seed, x+2,z+1), isSlimeChunk(&rnd, seed, x+3,z+1));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+2), isSlimeChunk(&rnd, seed, x+1,z+2), isSlimeChunk(&rnd, seed, x+2,z+2), isSlimeChunk(&rnd, seed, x+3,z+2));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+3), isSlimeChunk(&rnd, seed, x+1,z+3), isSlimeChunk(&rnd, seed, x+2,z+3), isSlimeChunk(&rnd, seed, x+3,z+3));
+  printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+4), isSlimeChunk(&rnd, seed, x+1,z+4), isSlimeChunk(&rnd, seed, x+2,z+4), isSlimeChunk(&rnd, seed, x+3,z+4));
 
-  int32_t gx_min = -309;
-  int32_t gx_max = 312;
-  int32_t globalx = 0;
-  int32_t gy_min = -312;
-  int32_t gy_max = 309;
-  int32_t globaly = 0;
-
-  int32_t localx = 0;
-  const int32_t localx_range = 4;
-  int32_t localy = 0;
-  const int32_t localy_range = 4;
-
-
-  int64_t seed = 0;
-  SlimeChunkSeed seedt;
-  //foreach seedlist
-  int i=0;
-  for(seed = seed_start; seed <= seed_end; seed++){
-    setMCSeed(&seedt, seed);
-    for(globalx = gx_min; globalx <= gx_max; globalx += localx_range){
-      for(globaly = gy_min; globaly <= gy_max; globaly++){
-        for(localx = 0; isSlimeChunkXZ(&seedt, globalx+localx, globaly)&&localx < localx_range;localx++){
-        }
-
-        if(localx == localx_range){
-            //printf("%ld, %d, %d\n", seed, globalx*16, globaly*16);
-            //goto finish;
-          printf("5chunk seed,%ld,%d,%d\n", seed, globalx, globaly);
-          i=1;
-          for(localy = -1; localy > -localy_range;localy--){
-              if(isSlimeChunkXZ(&seedt, globalx+0, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+1, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+2, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+3, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+4, globaly+localy)){
-              i++;
-              printf("ue,%ld,%d,%d\n", seed, globalx, globaly);
-            }else{
-              break;
-            }
-          }
-          for(localy = 1; localy < localy_range;localy++){
-              if(isSlimeChunkXZ(&seedt, globalx+0, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+1, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+2, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+3, globaly+localy)
-              &&isSlimeChunkXZ(&seedt, globalx+4, globaly+localy)){
-              i++;
-              printf("shita,%ld,%d,%d\n", seed, globalx, globaly);
-            }else{
-              break;
-            }
-          }
-          if(i>=localy_range){
-             printf("found!, %ld,%d,%d\n", seed, globalx*16, globaly*16);
-          }
-        }else{
-          //globaly+=localx;
-        }
+  x = X_MIN;
+  uint64_t a = 0;
+  const clock_t start = clock();
+  while(x < X_MAX){
+    z = Z_MIN;
+    while(z < Z_MAX){
+      a = a<<1|isSlimeChunk(&rnd, seed, x, z);
+      if((a&0x0f) == 0x0f){
+        fputs("アッー！", stdout);
+      }else{
+        fputs("", stdout);
       }
+      z++;
     }
+    x++;
   }
-  //mark_seed_range_as_searched
-  //end foreach seedlist
-finish:
+  const clock_t end = clock();
+  fputs("\n", stdout);
+  printf("%.8f秒かかりました\n",((double)(end-start)/CLOCKS_PER_SEC));
+  printf("1秒あたり%.8f回\n",1/((double)(end-start)/CLOCKS_PER_SEC));
   return EXIT_SUCCESS;
 }
-
