@@ -71,7 +71,7 @@ void init_db_file(void);
 #define Z_MIN (-312)
 #define Z_MAX (312)
 int main(int argc, char* argv[]){
-  const int64_t seed = 1613738097659009556L;
+  int64_t seed = 1613738097659009556L;
   Random rnd;
   int32_t x=-3136/16;
   int32_t z=-2400/16;
@@ -81,25 +81,18 @@ int main(int argc, char* argv[]){
   printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+3), isSlimeChunk(&rnd, seed, x+1,z+3), isSlimeChunk(&rnd, seed, x+2,z+3), isSlimeChunk(&rnd, seed, x+3,z+3));
   printf("%d%d%d%d\n", isSlimeChunk(&rnd, seed, x+0,z+4), isSlimeChunk(&rnd, seed, x+1,z+4), isSlimeChunk(&rnd, seed, x+2,z+4), isSlimeChunk(&rnd, seed, x+3,z+4));
 
-  x = X_MIN;
-  uint64_t a = 0;
-  const clock_t start = clock();
-  while(x < X_MAX){
-    z = Z_MIN;
-    while(z < Z_MAX){
-      a = a<<1|isSlimeChunk(&rnd, seed, x, z);
-      if((a&0x0f) == 0x0f){
-        fputs("アッー！", stdout);
-      }else{
-        fputs("", stdout);
+  int32_t jumpx = 0;
+  int64_t seed_section_size = 1000;
+  int64_t seed_max = seed + seed_section_size;
+  for(;seed<seed_max;seed++){
+    for(z = Z_MIN; z < Z_MAX;z++){
+      for(x = X_MIN; x < X_MAX;x++){
+        jumpx ^= jumpx;
+        if(isSlimeChunk(&rnd, seed, x+0,z+0)){
+          
+        }
       }
-      z++;
     }
-    x++;
   }
-  const clock_t end = clock();
-  fputs("\n", stdout);
-  printf("%.8f秒かかりました\n",((double)(end-start)/CLOCKS_PER_SEC));
-  printf("1秒あたり%.8f回\n",1/((double)(end-start)/CLOCKS_PER_SEC));
   return EXIT_SUCCESS;
 }
